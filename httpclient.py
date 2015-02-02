@@ -119,6 +119,13 @@ class HTTPClient(object):
         code = 500
         body = ""
         
+        if args:
+            data = urllib.urlencode(args)
+        else:
+            data = ""
+            
+        content_length = len(data)
+        
         addresshostname_ = urlparse(url).hostname
         addressport_ = urlparse(url).port
         addresspath_ = urlparse(url).path
@@ -134,7 +141,7 @@ class HTTPClient(object):
             socket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             socket_.connect((addresshostname_ , 80))              
             
-        message = "POST "+addresspath_+" HTTP/1.1\r\nHost: "+addresshostname_+"\r\n\r\n"
+        message = "POST "+addresspath_+" HTTP/1.1\r\nHost: "+addresshostname_+"\r\nContent-Type: application/x-www-form-urlencoded\r\n"+"Content-Length: %d"%(content_length)+"\r\n\r\n"+data
         
         print(message)
         socket_.send(message)
