@@ -2,6 +2,12 @@
 # coding: utf-8
 # Copyright 2013 Abram Hindle
 # 
+# httpclient.py: I, Kevin Joseph De Asis have modified server.py,
+# which is a partially HTTP 1.1 compliant HTTP Client that can GET 
+# and POST to a webserver.
+# Copyright 2015 Kevin Joseph De Asis 
+
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,16 +19,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
 # Do not use urllib's HTTP GET and POST mechanisms.
 # Write your own HTTP GET and POST
 # The point is to understand what you have to send and get experience with it
+#
+# The basis of learning sockets was obtained from 
+# http://www.binarytides.com/python-socket-programming-tutorial/
+# Python socket – network programming tutorial
+# By Silver Moon 
 
 import sys
 import socket
 import re
 # you may use urllib to encode data appropriately
 import urllib
+from urlparse import urlparse
 
 def help():
     print "httpclient.py [GET/POST] [URL]\n"
@@ -37,7 +49,11 @@ class HTTPClient(object):
 
     def connect(self, host, port):
         # use sockets!
-        return None
+        #socket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #socket_.connect((host , 80))
+        
+        
+        return none
 
     def get_code(self, data):
         return None
@@ -63,11 +79,80 @@ class HTTPClient(object):
     def GET(self, url, args=None):
         code = 500
         body = ""
+        
+        addresshostname_ = urlparse(url).hostname
+        addressport_ = urlparse(url).port
+        addresspath_ = urlparse(url).path
+                
+        if addressport_:
+            #connection = self.connect(addresshostname_, addressport_)
+            
+            socket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            socket_.connect((addresshostname_ , addressport_))            
+        else:
+            #connection = self.connect(addresshostname_, 80)
+            
+            socket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            socket_.connect((addresshostname_ , 80))              
+            
+        message = "GET "+addresspath_+" HTTP/1.1\r\nHost: "+addresshostname_+"\r\n\r\n"
+        
+        print(message)
+        socket_.send(message)
+        print("here1")
+        
+        reply = self.recvall(socket_)
+        print("here2")
+        
+        code = int(((reply.split("\r\n"))[0]).split()[1])
+        print "exit"
+        body = (reply.split("\r\n\r\n"))[1]
+        
+        print code
+        print "code"
+        print body
+        print "body"
+
         return HTTPRequest(code, body)
 
     def POST(self, url, args=None):
         code = 500
         body = ""
+        
+        addresshostname_ = urlparse(url).hostname
+        addressport_ = urlparse(url).port
+        addresspath_ = urlparse(url).path
+                
+        if addressport_:
+            #connection = self.connect(addresshostname_, addressport_)
+            
+            socket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            socket_.connect((addresshostname_ , addressport_))            
+        else:
+            #connection = self.connect(addresshostname_, 80)
+            
+            socket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            socket_.connect((addresshostname_ , 80))              
+            
+        message = "POST "+addresspath_+" HTTP/1.1\r\nHost: "+addresshostname_+"\r\n\r\n"
+        
+        print(message)
+        socket_.send(message)
+        print("here1")
+        
+        reply = self.recvall(socket_)
+        print("here2")
+        
+        code = int(((reply.split("\r\n"))[0]).split()[1])
+        print "exit"
+        body = (reply.split("\r\n\r\n"))[1]
+        
+        print code
+        print "code"
+        print body
+        print "body"
+
+        
         return HTTPRequest(code, body)
 
     def command(self, url, command="GET", args=None):
